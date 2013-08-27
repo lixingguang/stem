@@ -126,7 +126,7 @@
 	<!-- throughout the time spanned by the genealogy.                           -->
 	<constantSize id="constant" units="years">
 		<populationSize>
-			<parameter id="constant.popSize" value="290.0" lower="0.0"/>
+			<parameter id="constant.popSize" value="5.0" lower="0.0"/>
 		</populationSize>
 	</constantSize>
 
