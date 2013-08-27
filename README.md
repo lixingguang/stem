@@ -1,5 +1,9 @@
 ## Picking influenza stem strains
 
+### TODO
+
+* Implement 'trunk state' logging when outputing `.trees`, like phylogeography.
+
 ### Trunk vs side branch rate models
 
 Want a model of an influenza tree where the trunk evolves differently than side branches.
