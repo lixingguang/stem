@@ -210,7 +210,7 @@
 		<patterns idref="patterns"/>
 		<treeModel idref="treeModel"/>
 		<siteModel idref="siteModel"/>
-		<strictClockBranchRates idref="branchRates"/>
+		<localClockModel idref="branchRates"/>
 	</treeLikelihood>
 
 	<!-- Define operators                                                        -->
@@ -266,7 +266,7 @@
 	</operators>
 
 	<!-- Define MCMC                                                             -->
-	<mcmc id="mcmc" chainLength="10000000" autoOptimize="true" operatorAnalysis="testTrunk.ops">
+	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="testTrunk.ops">
 		<posterior id="posterior">
 			<prior id="prior">
 				<logNormalPrior mean="1.0" stdev="1.25" offset="0.0" meanInRealSpace="false">
@@ -342,7 +342,10 @@
 		<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="testTrunk.trees" sortTranslationTable="true">
 			<treeModel idref="treeModel"/>
 			<trait name="rate" tag="rate">
-				<strictClockBranchRates idref="branchRates"/>
+				<localClockModel idref="branchRates"/>
+			</trait>
+			<trait name="trunk" tag="trunk">
+				<localClockModel idref="branchRates"/>
 			</trait>
 			<posterior idref="posterior"/>
 		</logTree>
