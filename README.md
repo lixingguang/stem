@@ -1,9 +1,5 @@
 ## Picking influenza stem strains
 
-### TODO
-
-* Implement 'trunk state' logging when outputing `.trees`, like phylogeography.
-
 ### Trunk vs side branch rate models
 
 Want a model of an influenza tree where the trunk evolves differently than side branches.
@@ -20,6 +16,12 @@ Want to select a single strain from the set of contemporaneous strains that is m
 Here, we pick an index for the initial stem taxon from this set and operate on this index to choose new stems over the MCMC.
 
 ![](https://raw.github.com/trvrb/mk/master/figures/futuretree.png)
+
+### Data
+
+Start with the 402 H3N2 viruses from the [flux](https://github.com/trvrb/flux) analysis.
+These have an amino acid alignment of 330 characters.
+
 
 ### Implementation
 
