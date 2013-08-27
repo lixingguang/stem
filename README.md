@@ -26,18 +26,63 @@ These have an amino acid alignment of 330 characters.
 ### Implementation
 
 ```XML
-<localClockModel id="">
-	<treeModel idref=""/>
-	<rate>
-		<parameter id="branchRate" value="0.001"/>
-	</rate>
-	<trunk>
-		<taxa idref="trunkTaxa"/>
-		<index>
-			<parameter id="trunkTaxon" value="0" lower="0" upper="X"/>
-		</index>
-		<parameter id="trunkRate" value="0.001"/>
-	</trunk>
-</localClockModel>
+	<localClockModel id="branchRates">
+		<treeModel idref="treeModel"/>
+		<rate>
+			<parameter id="branch.rate" value="0.0010" lower="0.0"/>
+		</rate>
+		<trunk>
+			<taxa idref="stems"/>
+			<index>
+				<parameter id="stem" value="0"/>
+			</index>
+			<parameter id="trunk.rate" value="0.001"/>
+		</trunk>
+	</localClockModel>
 ```
+
+```XML
+	<operators id="operators">
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="branch.rate"/>
+		</scaleOperator>
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="trunk.rate"/>
+		</scaleOperator>
+		<upDownOperator scaleFactor="0.75" weight="3">
+			<up>
+				<parameter idref="branch.rate"/>
+			</up>
+			<down>
+				<parameter idref="treeModel.allInternalNodeHeights"/>
+			</down>
+		</upDownOperator>
+		<uniformIntegerOperator weight="5" lower="0" upper="3">
+			<parameter idref="stem"/>
+		</uniformIntegerOperator>		
+	</operators>	
+```
+
+```XML
+	<log id="fileLog" logEvery="1000" fileName="testTrunk.log" overwrite="false">
+		<parameter idref="branch.rate"/>
+		<parameter idref="trunk.rate"/>
+		<parameter idref="stem"/>
+	</log>		
+```
+
+```XML
+	<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="testTrunk.trees" sortTranslationTable="true">
+		<treeModel idref="treeModel"/>
+		<trait name="rate" tag="rate">
+			<localClockModel idref="branchRates"/>
+		</trait>
+		<trait name="trunk" tag="trunk">
+			<localClockModel idref="branchRates"/>
+		</trait>
+		<posterior idref="posterior"/>
+	</logTree>
+```
+
+
 
