@@ -51,6 +51,7 @@
 			<date value="1995.0" direction="forwards" units="years"/>
 		</taxon>
 	</taxa>
+	
 	<taxa id="stems">
 		<taxon idref="A/Beijing/32/1992"/>
 		<taxon idref="A/Johannesburg/33/1994"/>
@@ -148,14 +149,6 @@
 			<parameter id="treeModel.allInternalNodeHeights"/>
 		</nodeHeights>
 	</treeModel>
-
-	<!-- Taxon Sets                                                              -->
-	<tmrcaStatistic id="tmrca(stems)" includeStem="false">
-		<mrca>
-			<taxa idref="stems"/>
-		</mrca>
-		<treeModel idref="treeModel"/>
-	</tmrcaStatistic>
 
 	<!-- Generate a coalescent likelihood                                        -->
 	<coalescentLikelihood id="coalescent">
@@ -326,7 +319,6 @@
 			<prior idref="prior"/>
 			<likelihood idref="likelihood"/>
 			<parameter idref="treeModel.rootHeight"/>
-			<tmrcaStatistic idref="tmrca(stems)"/>
 			<parameter idref="constant.popSize"/>
 			<parameter idref="kappa"/>
 			<parameter idref="frequencies"/>
