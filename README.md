@@ -27,7 +27,9 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 	</rate>
 	<trunk>
 		<taxa idref="trunkTaxa"/>
-		<parameter id="trunkTaxon" value="0" lower="0" upper="X"/>
+		<index>
+			<parameter id="trunkTaxon" value="0" lower="0" upper="X"/>
+		</index>
 		<parameter id="trunkRate" value="0.001"/>
 	</trunk>
 </localClockModel>
