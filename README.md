@@ -41,6 +41,15 @@ In this case, we have 437 non-epitope residues and 129 epitope residues.
 ```
 
 ```XML
+	<maskedPatterns id="maskedPatterns" negative="true">
+		<alignment idref="alignment"/>
+		<mask>
+			011010101010100010100101...
+		</mask>
+	</maskedPatterns>
+```
+
+```XML
 	<localClockModel id="branchRates">
 		<treeModel idref="treeModel"/>
 		<rate>
