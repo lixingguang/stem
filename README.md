@@ -32,6 +32,15 @@ In this case, we have 437 non-epitope residues and 129 epitope residues.
 ### Implementation
 
 ```XML
+	<taxa id="stems">
+		<taxon idref="A/Beijing/32/1992"/>
+		<taxon idref="A/Johannesburg/33/1994"/>
+		<taxon idref="A/Sydney/5/1997"/>
+		<taxon idref="A/Wuhan/359/1995"/>
+	</taxa>
+```
+
+```XML
 	<localClockModel id="branchRates">
 		<treeModel idref="treeModel"/>
 		<rate>
