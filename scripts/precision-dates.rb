@@ -2,7 +2,7 @@
 
 require 'date'
 
-puts "strain\tdate\tdate_decimal\tdate_precision\tregion\tcountry\tsource\taccession\tsequence"
+puts "strain\tdate\tdate_decimal\tdate_precision\tcountry\tsource\taccession\tsequence"
 
 inputfile_name = ARGV[0]
 file = File.new(inputfile_name, "r")
