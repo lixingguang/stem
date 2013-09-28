@@ -15,7 +15,7 @@ We can have a sequence partition from non-epitope sites where the trunk should e
 Want to select a single strain from the set of contemporaneous strains that is most trunk-linke in its evolution.
 Here, we pick an index for the initial stem taxon from this set and operate on this index to choose new stems over the MCMC.
 
-![](https://raw.github.com/trvrb/mk/master/figures/futuretree.png)
+![](figures/futuretree.png)
 
 ### Data
 
