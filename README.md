@@ -1,6 +1,4 @@
-## Picking influenza stem strains
-
-### Trunk vs side branch rate models
+## Trunk vs side branch rate models
 
 Want a model of an influenza tree where the trunk evolves differently than side branches.
 This is reflected by different branchRateModels for branches that descend from a single marked tip (trunk branches) and all other branches on the tree (side branches).
@@ -10,26 +8,14 @@ The rate model thus includes the overall rate &mu;, so that trunk branches have 
 This branch rate model can be applied to different partitions on the same tree.  
 We can have a sequence partition from non-epitope sites where the trunk should evolve more slowly, a sequence partition from epitope sites where the trunk should evolve more quickly and a continuous trait partition from the antigenic MDS where the trunk should diffuse more quickly.
 
-### Tip to trunk mapping
+## Tip to trunk mapping
 
 Want to select a single strain from the set of contemporaneous strains that is most trunk-linke in its evolution.
 Here, we pick an index for the initial stem taxon from this set and operate on this index to choose new stems over the MCMC.
 
 ![](figures/futuretree.png)
 
-### Data
-
-I chose 656 H3N2 viruses that largely overlap with the [flux](https://github.com/trvrb/flux) analysis.
-These viruses were selected from the full set of strains from both IRD and GISAID, preferring strains with more HI data, longer sequences and precise dates.
-I selected at most 50 strains per year from 1968 to 2011.
-Nucleotide sequences are 1715 bases and amino acid sequences are 566 residues.
-I matched HI data to these strains, giving 13,980 titers and 536 serum samples.
-Only sera that were tested against 5 or more different viruses were kept.
-
-Epitopes sites were determined following Munoz and Deem 2005 (["Epitope analysis for influenza vaccine design"](http://www.sciencedirect.com/science/article/pii/S0264410X0400636X)).
-In this case, we have 437 non-epitope residues and 129 epitope residues.
-
-### Implementation
+## Implementation
 
 ```XML
 	<taxa id="stems">
