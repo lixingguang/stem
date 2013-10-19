@@ -17,7 +17,7 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 
 ## Implementation
 
-```XML
+```xml
 	<taxa id="stems">
 		<taxon idref="A/Beijing/32/1992"/>
 		<taxon idref="A/Johannesburg/33/1994"/>
@@ -26,7 +26,7 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 	</taxa>
 ```
 
-```XML
+```xml
 	<maskedPatterns id="maskedPatterns" negative="true">
 		<alignment idref="alignment"/>
 		<mask>
@@ -35,7 +35,7 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 	</maskedPatterns>
 ```
 
-```XML
+```xml
 	<localClockModel id="branchRates">
 		<treeModel idref="treeModel"/>
 		<rate>
@@ -51,7 +51,7 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 	</localClockModel>
 ```
 
-```XML
+```xml
 	<operators id="operators">
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="branch.rate"/>
@@ -73,7 +73,7 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 	</operators>	
 ```
 
-```XML
+```xml
 	<log id="fileLog" logEvery="1000" fileName="testTrunk.log" overwrite="false">
 		<parameter idref="branch.rate"/>
 		<parameter idref="trunk.rate"/>
@@ -81,7 +81,7 @@ Here, we pick an index for the initial stem taxon from this set and operate on t
 	</log>		
 ```
 
-```XML
+```xml
 	<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="testTrunk.trees" sortTranslationTable="true">
 		<treeModel idref="treeModel"/>
 		<trait name="rate" tag="rate">
