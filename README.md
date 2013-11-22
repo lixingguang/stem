@@ -10,7 +10,7 @@ We can have a sequence partition from non-epitope sites where the trunk should e
 
 ## Tip to trunk mapping
 
-Want to select a single strain from the set of contemporaneous strains that is most trunk-linke in its evolution.
+Want to select a single strain from the set of contemporaneous strains that is most trunk-like in its evolution.
 Here, we pick an index for the initial stem taxon from this set and operate on this index to choose new stems over the MCMC.
 
 ![](figures/futuretree.png)
