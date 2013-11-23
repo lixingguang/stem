@@ -3318,7 +3318,7 @@
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="constant.popSize"/>
 		</scaleOperator>
-		<uniformIntegerOperator weight="5" lower="0" upper="4">
+		<uniformIntegerOperator weight="5" lower="0" upper="49">
 			<parameter idref="stem"/>
 		</uniformIntegerOperator>
 	</operators>
