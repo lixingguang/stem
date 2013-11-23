@@ -70,6 +70,8 @@ Priors and MCMC is pretty standard, with `branchRate`, `trunkRate` and `stem` al
 
 A more complex model partitions rates across sites in addition to partitioning rates across trunk vs side branch.  This is shown in [`stem_partition.xml`](https://github.com/trvrb/stem/blob/master/spec/stem_partition.xml).  On the data side, this is accomplished by separating alignment positions using `<maskedPatterns>`.
 
+Code in BEAST resides in [`maskedPatternsParser`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evoxml/MaskedPatternsParser.java).
+
 ```xml
 <maskedPatterns id="epitopePatterns" negative="true">
 	<alignment idref="alignment"/>
