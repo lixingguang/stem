@@ -3389,7 +3389,7 @@
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="trunk.rate"/>
 		</scaleOperator>
-		<uniformIntegerOperator weight="5" lower="0" upper="3">
+		<uniformIntegerOperator weight="5" lower="0" upper="49">
 			<parameter idref="stem"/>
 		</uniformIntegerOperator>
 	</operators>
