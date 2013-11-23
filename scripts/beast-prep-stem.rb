@@ -8,6 +8,7 @@ stem_year = ARGV[2].to_i
 samples = Hash.new
 YEAR = 0
 SEQ = 1
+DATE = 2
 
 infile = File.open(filename, "r")
 infile.readlines.each { |line|
@@ -26,7 +27,7 @@ infile.readlines.each { |line|
 		
 		year = date_decimal.to_i
 			
-		entry = [year, sequence]
+		entry = [year, sequence, date_decimal]
 		samples[name] = entry
 				
 	end
@@ -42,7 +43,9 @@ EOF
 # taxa
 puts "\t<taxa id=\"taxa\">"
 samples.each_pair { |name, entry|
-	puts "\t\t<taxon id=\"#{name}\"/>"
+	print "\t\t<taxon id=\"#{name}\">\n"
+	print "\t\t\t<date value=\"#{entry[DATE]}\" direction=\"forwards\" units=\"years\"/>\n"		
+	print "\t\t</taxon>\n"	
 }
 puts "\t</taxa>"
 
