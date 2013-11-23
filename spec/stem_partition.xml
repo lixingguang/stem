@@ -421,6 +421,12 @@
 			<trait name="trunk" tag="trunk">
 				<localClockModel idref="epitopeRates"/>
 			</trait>
+			<trait name="rate" tag="epitopeRate">
+				<localClockModel idref="epitopeRates"/>
+			</trait>
+			<trait name="rate" tag="nonepitopeRate">
+				<localClockModel idref="nonepitopeRates"/>
+			</trait>						
 			<posterior idref="posterior"/>
 		</logTree>
 		
