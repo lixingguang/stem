@@ -2,6 +2,8 @@
 
 Basic model of differing side branch and trunk rates is shown in `stem.xml`.  This takes an amino acid alignment and assigns different rates to trunk and side branches.  The trunk is defined as all branches descending from a particular tip.  
 
+Code in BEAST resides in [`LocalClockModel`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodel/branchratemodel/LocalClockModel.java) and [`LocalClockParser`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodelxml/branchratemodel/LocalClockModelParser.java).
+
 Possible stem tips are specified in an additional `<taxa>` block:
 
 ```xml
