@@ -1,6 +1,6 @@
 ## Basic trunk vs side branch implementation
 
-Basic model of differing side branch and trunk rates is shown in [`stem.xml`](stem.xml).  This takes an amino acid alignment and assigns different rates to trunk and side branches.  The trunk is defined as all branches descending from a particular tip.  
+Basic model of differing side branch and trunk rates is shown in [`stem.xml`](https://github.com/trvrb/stem/blob/master/spec/stem.xml).  This takes an amino acid alignment and assigns different rates to trunk and side branches.  The trunk is defined as all branches descending from a particular tip.  
 
 Code in BEAST resides in [`LocalClockModel`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodel/branchratemodel/LocalClockModel.java) and [`LocalClockParser`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodelxml/branchratemodel/LocalClockModelParser.java).
 
@@ -68,7 +68,7 @@ Priors and MCMC is pretty standard, with `branchRate`, `trunkRate` and `stem` al
 
 ## Partitioning rates across sites
 
-A more complex model partitions rates across sites in addition to partitioning rates across trunk vs side branch.  This is shown in [`stem_partition.xml`](stem_partition.xml).  On the data side, this is accomplished by separating alignment positions using `<maskedPatterns>`.
+A more complex model partitions rates across sites in addition to partitioning rates across trunk vs side branch.  This is shown in [`stem_partition.xml`](https://github.com/trvrb/stem/blob/master/spec/stem_partition.xml).  On the data side, this is accomplished by separating alignment positions using `<maskedPatterns>`.
 
 ```xml
 <maskedPatterns id="epitopePatterns" negative="true">
