@@ -16,35 +16,35 @@ Possible stem tips are specified in an additional `<taxa>` block:
 </taxa>
 ```
 
-Tree model follows the standard coalescent model.  Substitution model is the standard AA substitution model.  However, branch rate model follows a special `<localClockModel>`:
+Tree model follows the standard coalescent model.  Substitution model is the standard AA substitution model with gamma distributed rates across sites.  However, branch rate model follows a special `<localClockModel>`:
 
 ```xml
 <localClockModel id="branchRates">
 	<treeModel idref="treeModel"/>
 	<rate>
-		<parameter id="branchRate" value="0.0010" lower="0.0"/>
+		<parameter id="clock.rate" value="0.0010" lower="0.0"/>
 	</rate>
-	<trunk>
+	<trunk relative="true">
 		<taxa idref="stems"/>
 		<index>
 			<parameter id="stem" value="0"/>
 		</index>
-		<parameter id="trunkRate" value="0.001"/>
+		<parameter id="trunkRatio" value="1.0" lower="0.0"/>
 	</trunk>
 </localClockModel>
 ```
 
-The `branchRate` parameter specifies rate of side branches and `trunkRate` specifies the rate of trunk branches.  The parameter `stem` is an indicator variable that specifies which stem strain to take as determining the trunk.
+The `clock.rate` parameter specifies rate of side branches and `trunkRatio` specifies the multiplier on trunk branches.  The parameter `stem` is an indicator variable that specifies which stem strain to take as determining the trunk.
 
-Operators modify `branchRate` and `trunkRate`, but also propose new stem indicators.
+Operators modify `clock.rate` and `trunkRatio`, but also propose new stem indicators.
 
 ```xml
 <operators id="operators">
 	<scaleOperator scaleFactor="0.75" weight="3">
-		<parameter idref="branchRate"/>
+		<parameter idref="clock.rate"/>
 	</scaleOperator>
 	<scaleOperator scaleFactor="0.75" weight="3">
-		<parameter idref="trunkRate"/>
+		<parameter idref="trunkRatio"/>
 	</scaleOperator>
 	<uniformIntegerOperator weight="5" lower="0" upper="4">
 		<parameter idref="stem"/>
@@ -54,7 +54,7 @@ Operators modify `branchRate` and `trunkRate`, but also propose new stem indicat
 
 This needs to have `upper` specified manually to match the number of possible stem strains.
 
-Priors and MCMC is pretty standard, with `branchRate`, `trunkRate` and `stem` all logged.  The tree logging records whether a branch is assigned as trunk or side branch:
+Priors and MCMC is pretty standard, with `clock.rate`, `trunkRatio` and `stem` all logged.  The tree logging records whether a branch is assigned as trunk or side branch, as well as, each branch's rate:
 
 ```xml
 <logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem.trees" sortTranslationTable="true">
@@ -64,7 +64,7 @@ Priors and MCMC is pretty standard, with `branchRate`, `trunkRate` and `stem` al
 	</trait>
 	<trait name="rate" tag="rate">
 		<localClockModel idref="branchRates"/>
-	</trait>		
+	</trait>
 	<posterior idref="posterior"/>
 </logTree>
 ```
@@ -97,28 +97,28 @@ Clock models are duplicated:
 <localClockModel id="epitopeRates">
 	<treeModel idref="treeModel"/>
 	<rate>
-		<parameter id="epitopeBranchRate" value="0.0010" lower="0.0"/>
+		<parameter id="clock.rate" value="0.0010" lower="0.0"/>
 	</rate>
-	<trunk>
+	<trunk relative="true">
 		<taxa idref="stems"/>
 		<index>
 			<parameter id="stem" value="0"/>
 		</index>
-		<parameter id="epitopeTrunkRate" value="0.001"/>
+		<parameter id="epitopeTrunkRatio" value="1.0" lower="0.0"/>
 	</trunk>
 </localClockModel>
 
 <localClockModel id="nonepitopeRates">
 	<treeModel idref="treeModel"/>
 	<rate>
-		<parameter id="nonepitopeBranchRate" value="0.0010" lower="0.0"/>
+		<parameter idref="clock.rate"/>
 	</rate>
-	<trunk>
+	<trunk relative="true">
 		<taxa idref="stems"/>
 		<index>
 			<parameter idref="stem"/>
 		</index>
-		<parameter id="nonepitopeTrunkRate" value="0.001"/>
+		<parameter id="nonepitopeTrunkRatio" value="1.0" lower="0.0"/>
 	</trunk>
 </localClockModel>	
 ```
@@ -148,19 +148,17 @@ Proposals include both epitope and nonepitope rates:
 ```xml
 <operators id="operators">
 	<scaleOperator scaleFactor="0.75" weight="3">
-		<parameter idref="epitopeBranchRate"/>
+		<parameter idref="clock.rate"/>
 	</scaleOperator>
 	<scaleOperator scaleFactor="0.75" weight="3">
-		<parameter idref="epitopeTrunkRate"/>
+		<parameter idref="epitopeTrunkRatio"/>
 	</scaleOperator>
 	<scaleOperator scaleFactor="0.75" weight="3">
-		<parameter idref="nonepitopeBranchRate"/>
-	</scaleOperator>
-	<scaleOperator scaleFactor="0.75" weight="3">
-		<parameter idref="nonepitopeTrunkRate"/>
+		<parameter idref="nonepitopeTrunkRatio"/>
 	</scaleOperator>	
 </operators>		
 ```
+
 Trees log file looks like:
 
 ```xml

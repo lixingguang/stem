@@ -251,33 +251,36 @@
 		<substitutionModel>
 			<aminoAcidModel idref="aa"/>
 		</substitutionModel>
+		<gammaShape gammaCategories="4">
+			<parameter id="alpha" value="0.5" lower="0.0"/>
+		</gammaShape>		
 	</siteModel>
 
 	<localClockModel id="epitopeRates">
 		<treeModel idref="treeModel"/>
 		<rate>
-			<parameter id="epitopeBranchRate" value="0.0010" lower="0.0"/>
+			<parameter id="clock.rate" value="0.0010" lower="0.0"/>
 		</rate>
-		<trunk>
+		<trunk relative="true">
 			<taxa idref="stems"/>
 			<index>
 				<parameter id="stem" value="0"/>
 			</index>
-			<parameter id="epitopeTrunkRate" value="0.001"/>
+			<parameter id="epitopeTrunkRatio" value="1.0" lower="0.0"/>
 		</trunk>
 	</localClockModel>
 	
 	<localClockModel id="nonepitopeRates">
 		<treeModel idref="treeModel"/>
 		<rate>
-			<parameter id="nonepitopeBranchRate" value="0.0010" lower="0.0"/>
+			<parameter idref="clock.rate"/>
 		</rate>
-		<trunk>
+		<trunk relative="true">
 			<taxa idref="stems"/>
 			<index>
 				<parameter idref="stem"/>
 			</index>
-			<parameter id="nonepitopeTrunkRate" value="0.001"/>
+			<parameter id="nonepitopeTrunkRatio" value="1.0" lower="0.0"/>
 		</trunk>
 	</localClockModel>	
 
@@ -297,17 +300,17 @@
 
 	<operators id="operators">
 		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="epitopeBranchRate"/>
-		</scaleOperator>
-		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="epitopeTrunkRate"/>
-		</scaleOperator>
-		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="nonepitopeBranchRate"/>
-		</scaleOperator>
-		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="nonepitopeTrunkRate"/>
+			<parameter idref="alpha"/>
 		</scaleOperator>		
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="clock.rate"/>
+		</scaleOperator>
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="epitopeTrunkRatio"/>
+		</scaleOperator>
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="nonepitopeTrunkRatio"/>
+		</scaleOperator>	
 		<subtreeSlide size="29.0" gaussian="true" weight="15">
 			<treeModel idref="treeModel"/>
 		</subtreeSlide>
@@ -337,33 +340,24 @@
 	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="stem_partition.ops">
 		<posterior id="posterior">
 			<prior id="prior">
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="alpha"/>
+				</exponentialPrior>			
 				<ctmcScalePrior>
 					<ctmcScale>
-						<parameter idref="epitopeBranchRate"/>
+						<parameter idref="clock.rate"/>
 					</ctmcScale>
 					<treeModel idref="treeModel"/>
 				</ctmcScalePrior>
-				<ctmcScalePrior>
-					<ctmcScale>
-						<parameter idref="epitopeTrunkRate"/>
-					</ctmcScale>
-					<treeModel idref="treeModel"/>
-				</ctmcScalePrior>
-				<ctmcScalePrior>
-					<ctmcScale>
-						<parameter idref="nonepitopeBranchRate"/>
-					</ctmcScale>
-					<treeModel idref="treeModel"/>
-				</ctmcScalePrior>
-				<ctmcScalePrior>
-					<ctmcScale>
-						<parameter idref="nonepitopeTrunkRate"/>
-					</ctmcScale>
-					<treeModel idref="treeModel"/>
-				</ctmcScalePrior>							
-				<oneOnXPrior>
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="epitopeTrunkRatio"/>
+				</exponentialPrior>	
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="nonepitopeTrunkRatio"/>
+				</exponentialPrior>												
+				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="constant.popSize"/>
-				</oneOnXPrior>
+				</exponentialPrior>		
 				<coalescentLikelihood idref="coalescent"/>
 			</prior>
 			<likelihood id="likelihood">
@@ -386,18 +380,15 @@
 			<column label="rootHeight" sf="6" width="12">
 				<parameter idref="treeModel.rootHeight"/>
 			</column>
-			<column label="epitopeBranchRate" sf="6" width="12">
-				<parameter idref="epitopeBranchRate"/>
+			<column label="clock.rate" sf="6" width="12">
+				<parameter idref="clock.rate"/>
 			</column>
-			<column label="epitopeTrunkRate" sf="6" width="12">
-				<parameter idref="epitopeTrunkRate"/>
+			<column label="epitopeTrunkRatio" sf="6" width="12">
+				<parameter idref="epitopeTrunkRatio"/>
 			</column>
-			<column label="nonepitopeBranchRate" sf="6" width="12">
-				<parameter idref="nonepitopeBranchRate"/>
-			</column>
-			<column label="nonepitopeTrunkRate" sf="6" width="12">
-				<parameter idref="nonepitopeTrunkRate"/>
-			</column>			
+			<column label="nonepitopeTrunkRatio" sf="6" width="12">
+				<parameter idref="nonepitopeTrunkRatio"/>
+			</column>		
 			<column label="stem" dp="0" width="8">
 				<parameter idref="stem"/>
 			</column>
@@ -409,10 +400,9 @@
 			<likelihood idref="likelihood"/>
 			<parameter idref="treeModel.rootHeight"/>
 			<parameter idref="constant.popSize"/>
-			<parameter idref="epitopeBranchRate"/>
-			<parameter idref="epitopeTrunkRate"/>
-			<parameter idref="nonepitopeBranchRate"/>
-			<parameter idref="nonepitopeTrunkRate"/>			
+			<parameter idref="clock.rate"/>
+			<parameter idref="epitopeTrunkRatio"/>
+			<parameter idref="nonepitopeTrunkRatio"/>		
 			<parameter idref="stem"/>
 		</log>
 

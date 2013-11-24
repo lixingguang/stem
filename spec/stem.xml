@@ -241,19 +241,22 @@
 		<substitutionModel>
 			<aminoAcidModel idref="aa"/>
 		</substitutionModel>
+		<gammaShape gammaCategories="4">
+			<parameter id="alpha" value="0.5" lower="0.0"/>
+		</gammaShape>		
 	</siteModel>
 
 	<localClockModel id="branchRates">
 		<treeModel idref="treeModel"/>
 		<rate>
-			<parameter id="branchRate" value="0.0010" lower="0.0"/>
+			<parameter id="clock.rate" value="0.0010" lower="0.0"/>
 		</rate>
-		<trunk>
+		<trunk relative="true">
 			<taxa idref="stems"/>
 			<index>
 				<parameter id="stem" value="0"/>
 			</index>
-			<parameter id="trunkRate" value="0.001"/>
+			<parameter id="trunkRatio" value="1.0" lower="0.0"/>
 		</trunk>
 	</localClockModel>
 
@@ -266,10 +269,13 @@
 
 	<operators id="operators">
 		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="branchRate"/>
+			<parameter idref="alpha"/>
+		</scaleOperator>	
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="clock.rate"/>
 		</scaleOperator>
 		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="trunkRate"/>
+			<parameter idref="trunkRatio"/>
 		</scaleOperator>
 		<subtreeSlide size="29.0" gaussian="true" weight="15">
 			<treeModel idref="treeModel"/>
@@ -300,21 +306,21 @@
 	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="stem.ops">
 		<posterior id="posterior">
 			<prior id="prior">
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="alpha"/>
+				</exponentialPrior>				
 				<ctmcScalePrior>
 					<ctmcScale>
-						<parameter idref="branchRate"/>
+						<parameter idref="clock.rate"/>
 					</ctmcScale>
 					<treeModel idref="treeModel"/>
-				</ctmcScalePrior>
-				<ctmcScalePrior>
-					<ctmcScale>
-						<parameter idref="trunkRate"/>
-					</ctmcScale>
-					<treeModel idref="treeModel"/>
-				</ctmcScalePrior>				
-				<oneOnXPrior>
+				</ctmcScalePrior>	
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="trunkRatio"/>
+				</exponentialPrior>								
+				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="constant.popSize"/>
-				</oneOnXPrior>
+				</exponentialPrior>	
 				<coalescentLikelihood idref="coalescent"/>
 			</prior>
 			<likelihood id="likelihood">
@@ -336,11 +342,11 @@
 			<column label="rootHeight" sf="6" width="12">
 				<parameter idref="treeModel.rootHeight"/>
 			</column>
-			<column label="rate" sf="6" width="12">
-				<parameter idref="branchRate"/>
+			<column label="clock.rate" sf="6" width="12">
+				<parameter idref="clock.rate"/>
 			</column>
-			<column label="trunk" sf="6" width="12">
-				<parameter idref="trunkRate"/>
+			<column label="trunkRatio" sf="6" width="12">
+				<parameter idref="trunkRatio"/>
 			</column>
 			<column label="stem" dp="0" width="8">
 				<parameter idref="stem"/>
@@ -353,14 +359,17 @@
 			<likelihood idref="likelihood"/>
 			<parameter idref="treeModel.rootHeight"/>
 			<parameter idref="constant.popSize"/>
-			<parameter idref="branchRate"/>
-			<parameter idref="trunkRate"/>
+			<parameter idref="clock.rate"/>
+			<parameter idref="trunkRatio"/>
 			<parameter idref="stem"/>
 		</log>
 
 		<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem.trees" sortTranslationTable="true">
 			<treeModel idref="treeModel"/>
 			<trait name="trunk" tag="trunk">
+				<localClockModel idref="branchRates"/>
+			</trait>
+			<trait name="rate" tag="rate">
 				<localClockModel idref="branchRates"/>
 			</trait>
 			<posterior idref="posterior"/>
