@@ -76,14 +76,14 @@ A more complex model partitions rates across sites in addition to partitioning r
 Code in BEAST resides in [`maskedPatternsParser`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evoxml/MaskedPatternsParser.java).
 
 ```xml
-<maskedPatterns id="epitopePatterns" negative="true">
+<maskedPatterns id="epitopePatterns" negative="false">
 	<alignment idref="alignment"/>
 	<mask>
 		0000000111110110110010100110001000000010010111100111001...
 	</mask>
 </maskedPatterns>
 
-<maskedPatterns id="nonepitopePatterns" negative="false">
+<maskedPatterns id="nonepitopePatterns" negative="true">
 	<alignment idref="alignment"/>
 	<mask>
 		0000000111110110110010100110001000000010010111100111001...
