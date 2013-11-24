@@ -62,6 +62,9 @@ Priors and MCMC is pretty standard, with `branchRate`, `trunkRate` and `stem` al
 	<trait name="trunk" tag="trunk">
 		<localClockModel idref="branchRates"/>
 	</trait>
+	<trait name="rate" tag="rate">
+		<localClockModel idref="branchRates"/>
+	</trait>		
 	<posterior idref="posterior"/>
 </logTree>
 ```
@@ -158,4 +161,20 @@ Proposals include both epitope and nonepitope rates:
 	</scaleOperator>	
 </operators>		
 ```
+Trees log file looks like:
 
+```xml
+<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem_partition.trees" sortTranslationTable="true">
+	<treeModel idref="treeModel"/>			
+	<trait name="trunk" tag="trunk">
+		<localClockModel idref="epitopeRates"/>
+	</trait>
+	<trait name="rate" tag="epitopeRate">
+		<localClockModel idref="epitopeRates"/>
+	</trait>
+	<trait name="rate" tag="nonepitopeRate">
+		<localClockModel idref="nonepitopeRates"/>
+	</trait>						
+	<posterior idref="posterior"/>
+</logTree>
+```

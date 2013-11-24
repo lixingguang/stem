@@ -3323,7 +3323,7 @@
 		</uniformIntegerOperator>
 	</operators>
 
-	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="H3N2_stem_partition.ops">
+	<mcmc id="mcmc" chainLength="20000000" autoOptimize="true" operatorAnalysis="H3N2_stem_partition.ops">
 		<posterior id="posterior">
 			<prior id="prior">
 				<ctmcScalePrior>
@@ -3362,7 +3362,7 @@
 		</posterior>
 		<operators idref="operators"/>
 
-		<log id="screenLog" logEvery="1000">
+		<log id="screenLog" logEvery="2000">
 			<column label="Posterior" dp="4" width="12">
 				<posterior idref="posterior"/>
 			</column>
@@ -3392,7 +3392,7 @@
 			</column>
 		</log>
 
-		<log id="fileLog" logEvery="1000" fileName="H3N2_stem_partition.log" overwrite="false">
+		<log id="fileLog" logEvery="2000" fileName="H3N2_stem_partition.log" overwrite="false">
 			<posterior idref="posterior"/>
 			<prior idref="prior"/>
 			<likelihood idref="likelihood"/>
@@ -3405,7 +3405,7 @@
 			<parameter idref="stem"/>
 		</log>
 
-		<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="H3N2_stem_partition.trees" sortTranslationTable="true">
+		<logTree id="treeFileLog" logEvery="20000" nexusFormat="true" fileName="H3N2_stem_partition.trees" sortTranslationTable="true">
 			<treeModel idref="treeModel"/>			
 			<trait name="trunk" tag="trunk">
 				<localClockModel idref="epitopeRates"/>
