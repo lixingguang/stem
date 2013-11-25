@@ -400,6 +400,7 @@
 			<likelihood idref="likelihood"/>
 			<parameter idref="treeModel.rootHeight"/>
 			<parameter idref="constant.popSize"/>
+			<parameter idref="alpha"/>			
 			<parameter idref="clock.rate"/>
 			<parameter idref="epitopeTrunkRatio"/>
 			<parameter idref="nonepitopeTrunkRatio"/>		
