@@ -296,7 +296,7 @@
 			</matrixParameter>
 		</precisionMatrix>
 	</multivariateDiffusionModel>
-	
+
 	<localClockModel id="diffusionRates">
 		<treeModel idref="treeModel"/>
 		<rate>
@@ -309,8 +309,9 @@
 			</index>
 			<parameter id="diffusionTrunkRatio" value="1.0" lower="0.0"/>
 		</trunk>
-	</localClockModel>		
-		
+	</localClockModel>
+
+	<!--		
 	<localClockModel id="driftRates">
 		<treeModel idref="treeModel"/>
 		<rate>
@@ -330,13 +331,15 @@
    			<parameter id="drift.rate.d2" value="0.0"/>
  		</rate>
 	</strictClockBranchRates>
-		
+	-->
+			
 	<multivariateTraitLikelihood id="traitLikelihood" traitName="antigenic" 
-								 useTreeLength="true" scaleByTime="false" 
-								 reportAsMultivariate="true" 
-								 integrateInternalTraits="true">
-		<multivariateDiffusionModel idref="diffusionModel"/>		
-		<treeModel idref="treeModel"/>			
+	 						     useTreeLength="true" scaleByTime="false" 
+                                 reportAsMultivariate="true" 
+                                 integrateInternalTraits="true"
+                                 cacheBranches="true">
+		<multivariateDiffusionModel idref="diffusionModel"/>	
+		<treeModel idref="treeModel"/>
 		<traitParameter>
 			<parameter idref="leaf.antigenic"/>
 		</traitParameter>
@@ -348,13 +351,52 @@
 				<parameter value="1"/>
 			</priorSampleSize>
 		</conjugateRootPrior>
-		<localClockModel idref="diffusionRates"/>		
+        <localClockModel idref="diffusionRates"/>	
+        <!--
 		<driftModels>
 			<localClockModel idref="driftRates"/>
 			<strictClockBranchRates idref="driftRates.d2"/>			
-		</driftModels>	
-	</multivariateTraitLikelihood>	
+		</driftModels>
+		-->
+    </multivariateTraitLikelihood>	
     
+	<antigenicLikelihood id="antigenicLikelihood" 
+								fileName="test_hi_padded.tsv"
+								mdsDimension="2"
+								intervalWidth="1.0">
+		<virusLocations>
+			<matrixParameter id="virusLocations"/>
+		</virusLocations>	
+		<serumLocations>
+			<matrixParameter id="serumLocations"/>
+		</serumLocations>			
+		<tipTrait>
+			<parameter idref="leaf.antigenic"/>
+		</tipTrait>			
+		<mdsPrecision>
+			<parameter id="mds.precision" value="1.0" lower="0.0"/>
+		</mdsPrecision>
+		<serumPotencies>
+			<parameter id="serumPotencies"/>
+		</serumPotencies>	
+	</antigenicLikelihood>  
+	
+	<distributionLikelihood id="serumPotencies.hpm">
+		<data>
+			<parameter idref="serumPotencies"/>
+		</data>
+		<distribution>
+			<normalDistributionModel>
+				<mean>
+					<parameter id="serumPotencies.mean" value="10.0" lower="0.0"/>
+				</mean>
+				<precision>
+					<parameter id="serumPotencies.precision" value="1.0" lower="0.0"/>
+				</precision>
+			</normalDistributionModel>
+		</distribution>
+	</distributionLikelihood>		  
+
 	<operators id="operators">
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="alpha"/>
@@ -362,18 +404,20 @@
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="clock.rate"/>
 		</scaleOperator>
+		<!--
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="drift.rate"/>
 		</scaleOperator>
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="driftTrunkRatio"/>
 		</scaleOperator>
+		-->			
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="diffusion.rate"/>
 		</scaleOperator>
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="diffusionTrunkRatio"/>
-		</scaleOperator>				
+		</scaleOperator>			
 		<subtreeSlide size="29.0" gaussian="true" weight="15">
 			<treeModel idref="treeModel"/>
 		</subtreeSlide>
@@ -397,7 +441,25 @@
 		</scaleOperator>
 		<uniformIntegerOperator weight="5" lower="0" upper="4">
 			<parameter idref="stem"/>
-		</uniformIntegerOperator>		
+		</uniformIntegerOperator>
+		<randomWalkOperator windowSize="1.0" weight="100">
+			<parameter idref="virusLocations"/>
+		</randomWalkOperator>
+		<randomWalkOperator windowSize="1.0" weight="100">
+			<parameter idref="serumLocations"/>
+		</randomWalkOperator>		
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="mds.precision"/>
+		</scaleOperator>	
+		<scaleOperator scaleFactor="0.99" weight="10">
+			<parameter idref="serumPotencies"/>
+		</scaleOperator>			
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumPotencies.mean"/>
+		</scaleOperator>	
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumPotencies.precision"/>
+		</scaleOperator>			
 	</operators>
 
 	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="stem.ops">
@@ -412,25 +474,35 @@
 					</ctmcScale>
 					<treeModel idref="treeModel"/>
 				</ctmcScalePrior>	
+				<!--
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="drift.rate"/>
 				</exponentialPrior>			
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="driftTrunkRatio"/>
 				</exponentialPrior>	
+				-->
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="diffusion.rate"/>
 				</exponentialPrior>			
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="diffusionTrunkRatio"/>
-				</exponentialPrior>																				
+				</exponentialPrior>																
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="mds.precision"/>
+				</exponentialPrior>	
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="serumPotencies.precision"/>
+				</exponentialPrior>					
+				<distributionLikelihood idref="serumPotencies.hpm"/>				
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="constant.popSize"/>
 				</exponentialPrior>	
-				<coalescentLikelihood idref="coalescent"/>	
+				<coalescentLikelihood idref="coalescent"/>
+				<multivariateTraitLikelihood idref="traitLikelihood"/>		
 			</prior>
 			<likelihood id="likelihood">
-				<multivariateTraitLikelihood idref="traitLikelihood"/>	            		
+	            <antigenicLikelihood idref="antigenicLikelihood"/>	
 				<treeLikelihood idref="treeLikelihood"/>
 			</likelihood>
 		</posterior>
@@ -452,9 +524,11 @@
 			<column label="clock.rate" sf="6" width="12">
 				<parameter idref="clock.rate"/>
 			</column>
+			<!--
 			<column label="drift.rate" sf="6" width="12">
 				<parameter idref="drift.rate"/>
 			</column>
+			-->
 			<column label="diffusion.rate" sf="6" width="12">
 				<parameter idref="diffusion.rate"/>
 			</column>			
@@ -463,7 +537,7 @@
 			</column>
 		</log>
 
-		<log id="fileLog" logEvery="1000" fileName="stem_diffusion.log" overwrite="false">
+		<log id="fileLog" logEvery="1000" fileName="stem_antigenic.log" overwrite="false">
 			<posterior idref="posterior"/>
 			<prior idref="prior"/>
 			<likelihood idref="likelihood"/>
@@ -471,21 +545,40 @@
 			<parameter idref="constant.popSize"/>
 			<parameter idref="alpha"/>			
 			<parameter idref="clock.rate"/>
+			<!--
 			<parameter idref="drift.rate"/>
-			<parameter idref="driftTrunkRatio"/>	
-			<parameter idref="diffusion.rate"/>	
-			<parameter idref="diffusionTrunkRatio"/>																
+			<parameter idref="driftTrunkRatio"/>
+			-->	
+			<parameter idref="diffusion.rate"/>
+			<parameter idref="diffusionTrunkRatio"/>	
+			<parameter idref="mds.precision"/>	
+			<parameter idref="serumPotencies.mean"/>	
+			<parameter idref="serumPotencies.precision"/>															
 			<parameter idref="stem"/>
 		</log>
+		
+		<log id="fileLog2" logEvery="1000" fileName="stem_antigenic.virusLocs.log">
+			<parameter idref="virusLocations"/>
+		</log>
+		
+		<log id="fileLog3" logEvery="1000" fileName="stem_antigenic.serumLocs.log">
+			<parameter idref="serumLocations"/>
+		</log>		
 
-		<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem_diffusion.trees" sortTranslationTable="true">
+		<log id="fileLog4" logEvery="1000" fileName="stem_antigenic.serumPotencies.log">
+			<parameter idref="serumPotencies"/>
+		</log>		
+
+		<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem_antigenic.trees" sortTranslationTable="true">
 			<treeModel idref="treeModel"/>
+			<!--
 			<trait name="trunk" tag="trunk">
 				<localClockModel idref="driftRates"/>
 			</trait>
 			<trait name="rate" tag="driftRate">
 				<localClockModel idref="driftRates"/>
 			</trait>
+			-->
 			<trait name="rate" tag="diffusionRate">
 				<localClockModel idref="diffusionRates"/>
 			</trait>

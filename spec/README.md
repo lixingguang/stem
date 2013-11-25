@@ -185,6 +185,8 @@ Rather than focusing on sequence evolution, we can instead look at evolution of 
 
 We begin with a model of fixed virus antigenic locations in [`stem_diffusion.xml`](https://github.com/trvrb/stem/blob/master/spec/stem_diffusion.xml).
 
+Code in BEAST resides in [`IntegratedMultivariateTraitLikelihood`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodel/continuous/IntegratedMultivariateTraitLikelihood.java) for implementation and [`AbstractMultivariateTraitLikelihood`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodel/continuous/AbstractMultivariateTraitLikelihood.java) for parsing.
+
 We include antigenic locations in the `taxa` block:
 
 ```xml
@@ -237,6 +239,20 @@ We estimate the virus phylogeny in the standard fashion using `treeLikelihood`. 
 We set up separate trunk/side branch clock models for rate of drift along dimension 1 and rate of diffusion and we fix drift along dimension 2 to `0.0`:
 
 ```xml
+<localClockModel id="diffusionRates">
+	<treeModel idref="treeModel"/>
+	<rate>
+		<parameter id="diffusion.rate" value="1.0" lower="0.0"/>
+	</rate>
+	<trunk relative="true">
+		<taxa idref="stems"/>
+		<index>
+			<parameter id="stem" value="0"/>
+		</index>
+		<parameter id="diffusionTrunkRatio" value="1.0" lower="0.0"/>
+	</trunk>
+</localClockModel>		
+	
 <localClockModel id="driftRates">
 	<treeModel idref="treeModel"/>
 	<rate>
@@ -245,7 +261,7 @@ We set up separate trunk/side branch clock models for rate of drift along dimens
 	<trunk relative="true">
 		<taxa idref="stems"/>
 		<index>
-			<parameter id="stem" value="0"/>
+			<parameter idref="stem"/>
 		</index>
 		<parameter id="driftTrunkRatio" value="1.0" lower="0.0"/>
 	</trunk>
@@ -255,21 +271,7 @@ We set up separate trunk/side branch clock models for rate of drift along dimens
 	<rate>
 		<parameter id="drift.rate.d2" value="0.0"/>
 	</rate>
-</strictClockBranchRates>
-
-<localClockModel id="diffusionRates">
-	<treeModel idref="treeModel"/>
-	<rate>
-		<parameter id="diffusion.rate" value="1.0" lower="0.0"/>
-	</rate>
-	<trunk relative="true">
-		<taxa idref="stems"/>
-		<index>
-			<parameter idref="stem"/>
-		</index>
-		<parameter id="diffusionTrunkRatio" value="1.0" lower="0.0"/>
-	</trunk>
-</localClockModel>	
+</strictClockBranchRates>	
 ```
 
 Again, the `stem` parameter is shared between clock models.
@@ -366,4 +368,108 @@ Trees have antigenic locations as well as rates logged:
 
 ### Including cartographic estimation from HI data
 
-TODO
+In this case, everything from the diffusion model is included, but tips are no longer fixed and their locations are estimated from HI data.  And in addition, serum locations and potencies are also estimated.  This model is shown in [`stem_antigenic.xml`](https://github.com/trvrb/stem/blob/master/spec/stem_antigenic.xml).
+
+This is accomplished by including an antigenic likelihood that references tip traits as well as a [table of HI data](https://github.com/trvrb/stem/blob/master/spec/test_hi_padded.tsv):
+
+```xml
+<antigenicLikelihood id="antigenicLikelihood" 
+							fileName="test_hi_padded.tsv"
+							mdsDimension="2"
+							intervalWidth="1.0">
+	<virusLocations>
+		<matrixParameter id="virusLocations"/>
+	</virusLocations>	
+	<serumLocations>
+		<matrixParameter id="serumLocations"/>
+	</serumLocations>			
+	<tipTrait>
+		<parameter idref="leaf.antigenic"/>
+	</tipTrait>			
+	<mdsPrecision>
+		<parameter id="mds.precision" value="1.0" lower="0.0"/>
+	</mdsPrecision>
+	<serumPotencies>
+		<parameter id="serumPotencies"/>
+	</serumPotencies>	
+</antigenicLikelihood>  
+```
+
+Serum potencies are estimated in a hierarchical fashion:
+
+```xml
+<distributionLikelihood id="serumPotencies.hpm">
+	<data>
+		<parameter idref="serumPotencies"/>
+	</data>
+	<distribution>
+		<normalDistributionModel>
+			<mean>
+				<parameter id="serumPotencies.mean" value="10.0" lower="0.0"/>
+			</mean>
+			<precision>
+				<parameter id="serumPotencies.precision" value="1.0" lower="0.0"/>
+			</precision>
+		</normalDistributionModel>
+	</distribution>
+</distributionLikelihood>
+```
+
+This requires proposals on virus locations, serum locations, serum potencies, MDS precision, serum potencies mean and serum potencies precision:
+
+```xml
+<operators id="operators">
+	<randomWalkOperator windowSize="1.0" weight="100">
+		<parameter idref="virusLocations"/>
+	</randomWalkOperator>
+	<randomWalkOperator windowSize="1.0" weight="100">
+		<parameter idref="serumLocations"/>
+	</randomWalkOperator>		
+	<scaleOperator scaleFactor="0.99" weight="1">
+		<parameter idref="mds.precision"/>
+	</scaleOperator>	
+	<scaleOperator scaleFactor="0.99" weight="10">
+		<parameter idref="serumPotencies"/>
+	</scaleOperator>			
+	<scaleOperator scaleFactor="0.99" weight="1">
+		<parameter idref="serumPotencies.mean"/>
+	</scaleOperator>	
+	<scaleOperator scaleFactor="0.99" weight="1">
+		<parameter idref="serumPotencies.precision"/>
+	</scaleOperator>
+</operators>
+```
+
+The prior on virus locations is taken care of by the diffusion process, but serum locations and serum potencies need priors, as does MDS precision:
+
+```xml
+<prior id="prior">
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="mds.precision"/>
+	</exponentialPrior>	
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="serumPotencies.precision"/>
+	</exponentialPrior>					
+	<distributionLikelihood idref="serumPotencies.hpm"/>	
+</prior>
+```
+
+*Serum locations should have a drift prior.  This needs to be specified.*
+
+Virus locations, serum locations and serum potencies are logged to separate files:
+
+```xml
+<log id="fileLog2" logEvery="1000" fileName="stem_antigenic.virusLocs.log">
+	<parameter idref="virusLocations"/>
+</log>
+
+<log id="fileLog3" logEvery="1000" fileName="stem_antigenic.serumLocs.log">
+	<parameter idref="serumLocations"/>
+</log>		
+
+<log id="fileLog4" logEvery="1000" fileName="stem_antigenic.serumPotencies.log">
+	<parameter idref="serumPotencies"/>
+</log>		
+```
+
+Tree is logged just as before.
