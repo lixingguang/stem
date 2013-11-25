@@ -250,18 +250,9 @@
 		<nodeHeights internalNodes="true" rootNode="true">
 			<parameter id="treeModel.allInternalNodeHeights"/>
 		</nodeHeights>
-		<nodeTraits name="antigenic" rootNode="true" internalNodes="false" leafNodes="false" traitDimension="2">
-			<parameter id="root.antigenic"/>
-		</nodeTraits> 
-		<nodeTraits name="antigenic" rootNode="true" internalNodes="true" leafNodes="false" traitDimension="2">
-			<parameter id="internalTraits.antigenic"/>
-		</nodeTraits>
 		<nodeTraits name="antigenic" rootNode="false" internalNodes="false" leafNodes="true" traitDimension="2">
 			<parameter id="leaf.antigenic"/>
-		</nodeTraits>
-		<nodeTraits name="antigenic" rootNode="true" internalNodes="true" leafNodes="true" traitDimension="2">
-			<parameter id="allTraits.antigenic"/>
-		</nodeTraits>			
+		</nodeTraits>		
 	</treeModel>
 
 	<coalescentLikelihood id="coalescent">
@@ -357,11 +348,11 @@
 				<parameter value="1"/>
 			</priorSampleSize>
 		</conjugateRootPrior>
+		<localClockModel idref="diffusionRates"/>		
 		<driftModels>
-			<branchRateModel idref="driftRates"/>
-			<branchRateModel idref="driftRates.d2"/>			
-		</driftModels>
-		<localClockModel idref="diffusionRates"/>	
+			<localClockModel idref="driftRates"/>
+			<strictClockBranchRates idref="driftRates.d2"/>			
+		</driftModels>	
 	</multivariateTraitLikelihood>	
     
 	<operators id="operators">

@@ -201,6 +201,26 @@ We include antigenic locations in the `taxa` block:
 </taxa>
 ```
 
+Tree model also references the trait:
+
+```xml
+<treeModel id="treeModel">
+	<coalescentTree idref="startingTree"/>
+	<rootHeight>
+		<parameter id="treeModel.rootHeight"/>
+	</rootHeight>
+	<nodeHeights internalNodes="true">
+		<parameter id="treeModel.internalNodeHeights"/>
+	</nodeHeights>
+	<nodeHeights internalNodes="true" rootNode="true">
+		<parameter id="treeModel.allInternalNodeHeights"/>
+	</nodeHeights>
+	<nodeTraits name="antigenic" rootNode="false" internalNodes="false" leafNodes="true" traitDimension="2">
+		<parameter id="leaf.antigenic"/>
+	</nodeTraits>		
+</treeModel>
+```
+
 We estimate the virus phylogeny in the standard fashion using `treeLikelihood`.  To model the diffusion process we create a `multivariateDiffusionModel` and fix the diffusion kernel to be equal in dimensions 1 and 2 and include no correlation:
 
 ```xml
@@ -274,11 +294,11 @@ These plug into a trait likelihood:
 			<parameter value="1"/>
 		</priorSampleSize>
 	</conjugateRootPrior>
-	<driftModels>
-		<branchRateModel idref="driftRates"/>
-		<branchRateModel idref="driftRates.d2"/>			
-	</driftModels>
 	<localClockModel idref="diffusionRates"/>	
+	<driftModels>
+		<localClockModel idref="driftRates"/>
+		<strictClockBranchRates idref="driftRates.d2"/>			
+	</driftModels>
 </multivariateTraitLikelihood>	
 ```
 
