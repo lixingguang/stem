@@ -176,3 +176,174 @@ Trees log file looks like:
 	<posterior idref="posterior"/>
 </logTree>
 ```
+
+## Antigenic diffusion
+
+Rather than focusing on sequence evolution, we can instead look at evolution of antigenic phenotype.  In this case, each virus possesses a 2D antigenic location expressed as a continuous character state on the phylogeny.  This character state evolves according a Brownian motion process that includes a stochastic diffusion term and a systematic drift term.  The rate of diffusion and the rate of drift may differ between trunk and side branches.
+
+### Diffusion model alone
+
+We begin with a model of fixed virus antigenic locations in [`stem_diffusion.xml`](https://github.com/trvrb/stem/blob/master/spec/stem_diffusion.xml).
+
+We include antigenic locations in the `taxa` block:
+
+```xml
+<taxa id="taxa">
+	<taxon id="A/Bilthoven/15793/1968">
+		<date value="1968.0" direction="forwards" units="years"/>
+		<attr name="antigenic">0.0 0.0</attr>
+	</taxon>
+	<taxon id="A/Bilthoven/2668/1970">
+		<date value="1970.0" direction="forwards" units="years"/>
+		<attr name="antigenic">2.0 0.0</attr>
+	</taxon>
+	...
+</taxa>
+```
+
+We estimate the virus phylogeny in the standard fashion using `treeLikelihood`.  To model the diffusion process we create a `multivariateDiffusionModel` and fix the diffusion kernel to be equal in dimensions 1 and 2 and include no correlation:
+
+```xml
+<multivariateDiffusionModel id="diffusionModel">
+	<precisionMatrix>
+		<matrixParameter id="precisionMatrix">
+			<parameter id="col1" value="1 0"/>
+			<parameter id="col2" value="0 1"/>
+		</matrixParameter>
+	</precisionMatrix>
+</multivariateDiffusionModel>
+```
+
+We set up separate trunk/side branch clock models for rate of drift along dimension 1 and rate of diffusion and we fix drift along dimension 2 to `0.0`:
+
+```xml
+<localClockModel id="driftRates">
+	<treeModel idref="treeModel"/>
+	<rate>
+		<parameter id="drift.rate" value="1.0" lower="0.0"/>
+	</rate>
+	<trunk relative="true">
+		<taxa idref="stems"/>
+		<index>
+			<parameter id="stem" value="0"/>
+		</index>
+		<parameter id="driftTrunkRatio" value="1.0" lower="0.0"/>
+	</trunk>
+</localClockModel>	
+
+<strictClockBranchRates id="driftRates.d2">
+	<rate>
+		<parameter id="drift.rate.d2" value="0.0"/>
+	</rate>
+</strictClockBranchRates>
+
+<localClockModel id="diffusionRates">
+	<treeModel idref="treeModel"/>
+	<rate>
+		<parameter id="diffusion.rate" value="1.0" lower="0.0"/>
+	</rate>
+	<trunk relative="true">
+		<taxa idref="stems"/>
+		<index>
+			<parameter idref="stem"/>
+		</index>
+		<parameter id="diffusionTrunkRatio" value="1.0" lower="0.0"/>
+	</trunk>
+</localClockModel>	
+```
+
+Again, the `stem` parameter is shared between clock models.
+
+These plug into a trait likelihood:
+
+```xml
+<multivariateTraitLikelihood id="traitLikelihood" traitName="antigenic" 
+							 useTreeLength="true" scaleByTime="false" 
+							 reportAsMultivariate="true" 
+							 integrateInternalTraits="true">
+	<multivariateDiffusionModel idref="diffusionModel"/>		
+	<treeModel idref="treeModel"/>			
+	<traitParameter>
+		<parameter idref="leaf.antigenic"/>
+	</traitParameter>
+	<conjugateRootPrior>
+		<meanParameter>
+			<parameter value="0 0"/>
+		</meanParameter>
+		<priorSampleSize>
+			<parameter value="1"/>
+		</priorSampleSize>
+	</conjugateRootPrior>
+	<driftModels>
+		<branchRateModel idref="driftRates"/>
+		<branchRateModel idref="driftRates.d2"/>			
+	</driftModels>
+	<localClockModel idref="diffusionRates"/>	
+</multivariateTraitLikelihood>	
+```
+
+Operators include proposals on drift and diffusion rates and ratios, as well as the `stem` parameter:
+
+```xml
+<operators id="operators">
+	<scaleOperator scaleFactor="0.75" weight="3">
+		<parameter idref="drift.rate"/>
+	</scaleOperator>
+	<scaleOperator scaleFactor="0.75" weight="3">
+		<parameter idref="driftTrunkRatio"/>
+	</scaleOperator>
+	<scaleOperator scaleFactor="0.75" weight="3">
+		<parameter idref="diffusion.rate"/>
+	</scaleOperator>
+	<scaleOperator scaleFactor="0.75" weight="3">
+		<parameter idref="diffusionTrunkRatio"/>
+	</scaleOperator>	
+	<uniformIntegerOperator weight="5" lower="0" upper="4">
+		<parameter idref="stem"/>
+	</uniformIntegerOperator>		
+</operators>		
+```
+
+Priors are on drift and diffusion rates and ratios:
+
+```xml
+<prior id="prior">
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="drift.rate"/>
+	</exponentialPrior>			
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="driftTrunkRatio"/>
+	</exponentialPrior>	
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="diffusion.rate"/>
+	</exponentialPrior>			
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="diffusionTrunkRatio"/>
+	</exponentialPrior>	
+</prior>	
+```
+
+and `traitLikelihood` appears along with `treeLikelihood` in the `likelihood` block.
+
+Trees have antigenic locations as well as rates logged:
+
+```xml
+<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem_diffusion.trees" sortTranslationTable="true">
+	<treeModel idref="treeModel"/>
+	<trait name="trunk" tag="trunk">
+		<localClockModel idref="driftRates"/>
+	</trait>
+	<trait name="rate" tag="driftRate">
+		<localClockModel idref="driftRates"/>
+	</trait>
+	<trait name="rate" tag="diffusionRate">
+		<localClockModel idref="diffusionRates"/>
+	</trait>
+	<multivariateTraitLikelihood idref="traitLikelihood"/>						
+	<posterior idref="posterior"/>
+</logTree>
+```
+
+### Including cartographic estimation from HI data
+
+TODO
