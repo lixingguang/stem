@@ -370,6 +370,8 @@ Trees have antigenic locations as well as rates logged:
 
 In this case, everything from the diffusion model is included, but tips are no longer fixed and their locations are estimated from HI data.  And in addition, serum locations and potencies are also estimated.  This model is shown in [`stem_antigenic.xml`](https://github.com/trvrb/stem/blob/master/spec/stem_antigenic.xml).
 
+Code in BEAST resides in [`AntigenicLikelihood`](https://code.google.com/p/beast-mcmc/source/browse/trunk/src/dr/evomodel/antigenic/AntigenicLikelihood.java).
+
 This is accomplished by including an antigenic likelihood that references tip traits as well as a [table of HI data](https://github.com/trvrb/stem/blob/master/spec/test_hi_padded.tsv):
 
 ```xml
