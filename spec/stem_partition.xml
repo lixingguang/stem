@@ -210,50 +210,22 @@
         <mask>
 			00000000000000000000000000000000000000000000000000000000000011111011011001010011000100000001001011110011100110101000001100000100000001000110101011111101011010111110001010011111000101011011111111010010001111101110111001010001110011111111000000111110000000101010101110000000000011100100000001011011100000000000001001011000110111111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
         </mask>
-    </maskedPatterns>    
-
-	<constantSize id="constant" units="years">
-		<populationSize>
-			<parameter id="constant.popSize" value="5.0" lower="0.0"/>
-		</populationSize>
-	</constantSize>
-
-	<coalescentSimulator id="startingTree">
+    </maskedPatterns>  
+    
+	<empiricalTreeDistributionModel id="treeModel" fileName="test.trees">
 		<taxa idref="taxa"/>
-		<constantSize idref="constant"/>
-	</coalescentSimulator>
-
-	<treeModel id="treeModel">
-		<coalescentTree idref="startingTree"/>
-		<rootHeight>
-			<parameter id="treeModel.rootHeight"/>
-		</rootHeight>
-		<nodeHeights internalNodes="true">
-			<parameter id="treeModel.internalNodeHeights"/>
-		</nodeHeights>
-		<nodeHeights internalNodes="true" rootNode="true">
-			<parameter id="treeModel.allInternalNodeHeights"/>
-		</nodeHeights>
-	</treeModel>
-
-	<coalescentLikelihood id="coalescent">
-		<model>
-			<constantSize idref="constant"/>
-		</model>
-		<populationTree>
-			<treeModel idref="treeModel"/>
-		</populationTree>
-	</coalescentLikelihood>
+	</empiricalTreeDistributionModel>	
+	
+	<statistic id="treeModel.currentTree" name="Current Tree">
+		<empiricalTreeDistributionModel idref="treeModel"/>
+	</statistic>      
 
 	<aminoAcidModel id="aa" type="FLU"/>
 
 	<siteModel id="siteModel">
 		<substitutionModel>
 			<aminoAcidModel idref="aa"/>
-		</substitutionModel>
-		<gammaShape gammaCategories="4">
-			<parameter id="alpha" value="0.5" lower="0.0"/>
-		</gammaShape>		
+		</substitutionModel>	
 	</siteModel>
 
 	<localClockModel id="epitopeRates">
@@ -299,9 +271,9 @@
 	</treeLikelihood>	
 
 	<operators id="operators">
-		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="alpha"/>
-		</scaleOperator>		
+		<empiricalTreeDistributionOperator weight="1">
+			<empiricalTreeDistributionModel idref="treeModel"/>
+		</empiricalTreeDistributionOperator>			
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="clock.rate"/>
 		</scaleOperator>
@@ -311,27 +283,6 @@
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="nonepitopeTrunkRatio"/>
 		</scaleOperator>	
-		<subtreeSlide size="29.0" gaussian="true" weight="15">
-			<treeModel idref="treeModel"/>
-		</subtreeSlide>
-		<narrowExchange weight="15">
-			<treeModel idref="treeModel"/>
-		</narrowExchange>
-		<wideExchange weight="3">
-			<treeModel idref="treeModel"/>
-		</wideExchange>
-		<wilsonBalding weight="3">
-			<treeModel idref="treeModel"/>
-		</wilsonBalding>
-		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="treeModel.rootHeight"/>
-		</scaleOperator>
-		<uniformOperator weight="30">
-			<parameter idref="treeModel.internalNodeHeights"/>
-		</uniformOperator>
-		<scaleOperator scaleFactor="0.75" weight="3">
-			<parameter idref="constant.popSize"/>
-		</scaleOperator>
 		<uniformIntegerOperator weight="5" lower="0" upper="4">
 			<parameter idref="stem"/>
 		</uniformIntegerOperator>
@@ -339,10 +290,7 @@
 
 	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="stem_partition.ops">
 		<posterior id="posterior">
-			<prior id="prior">
-				<exponentialPrior mean="1.0" offset="0.0">
-					<parameter idref="alpha"/>
-				</exponentialPrior>			
+			<prior id="prior">		
 				<ctmcScalePrior>
 					<ctmcScale>
 						<parameter idref="clock.rate"/>
@@ -355,10 +303,6 @@
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="nonepitopeTrunkRatio"/>
 				</exponentialPrior>												
-				<exponentialPrior mean="1.0" offset="0.0">
-					<parameter idref="constant.popSize"/>
-				</exponentialPrior>		
-				<coalescentLikelihood idref="coalescent"/>
 			</prior>
 			<likelihood id="likelihood">
 				<treeLikelihood idref="epitopeTreeLikelihood"/>
@@ -377,8 +321,8 @@
 			<column label="Likelihood" dp="4" width="12">
 				<likelihood idref="likelihood"/>
 			</column>
-			<column label="rootHeight" sf="6" width="12">
-				<parameter idref="treeModel.rootHeight"/>
+			<column label="currentTree" sf="6" width="12">
+				<statistic idref="treeModel.currentTree"/>
 			</column>
 			<column label="clock.rate" sf="6" width="12">
 				<parameter idref="clock.rate"/>
@@ -397,10 +341,7 @@
 		<log id="fileLog" logEvery="1000" fileName="stem_partition.log" overwrite="false">
 			<posterior idref="posterior"/>
 			<prior idref="prior"/>
-			<likelihood idref="likelihood"/>
-			<parameter idref="treeModel.rootHeight"/>
-			<parameter idref="constant.popSize"/>
-			<parameter idref="alpha"/>			
+			<likelihood idref="likelihood"/>		
 			<parameter idref="clock.rate"/>
 			<parameter idref="epitopeTrunkRatio"/>
 			<parameter idref="nonepitopeTrunkRatio"/>		
