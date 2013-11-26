@@ -282,7 +282,8 @@ These plug into a trait likelihood:
 <multivariateTraitLikelihood id="traitLikelihood" traitName="antigenic" 
 							 useTreeLength="true" scaleByTime="false" 
 							 reportAsMultivariate="true" 
-							 integrateInternalTraits="true">
+							 integrateInternalTraits="true"
+							 cacheBranches="true">
 	<multivariateDiffusionModel idref="diffusionModel"/>		
 	<treeModel idref="treeModel"/>			
 	<traitParameter>
