@@ -375,7 +375,25 @@
 		<serumPotencies>
 			<parameter id="serumPotencies"/>
 		</serumPotencies>	
+		<serumOffsets>
+			<parameter id="serumOffsets"/>
+		</serumOffsets>		
 	</antigenicLikelihood>  
+	
+	<antigenicDriftPrior id="serumDriftPrior">
+		<locations>
+			<matrixParameter idref="serumLocations"/>
+		</locations>
+		<offsets>
+			<parameter idref="serumOffsets"/>
+		</offsets>
+		<regressionSlope>
+			<parameter id="serumDrift.rate" value="1.0" lower="0.0"/>
+		</regressionSlope>
+		<regressionPrecision>
+			<parameter id="serumDrift.precision" value="1.0" lower="0.0"/>
+		</regressionPrecision>
+	</antigenicDriftPrior>
 	
 	<distributionLikelihood id="serumPotencies.hpm">
 		<data>
@@ -394,7 +412,7 @@
 	</distributionLikelihood>		  
 
 	<operators id="operators">
-		<scaleOperator scaleFactor="0.75" weight="3">
+		<scaleOperator scaleFactor="0.75" weight="1">
 			<parameter idref="alpha"/>
 		</scaleOperator>	
 		<scaleOperator scaleFactor="0.75" weight="3">
@@ -445,20 +463,32 @@
 		<scaleOperator scaleFactor="0.99" weight="1">
 			<parameter idref="mds.precision"/>
 		</scaleOperator>	
-		<scaleOperator scaleFactor="0.99" weight="10">
+		<randomWalkOperator windowSize="1.0" weight="10">
 			<parameter idref="serumPotencies"/>
-		</scaleOperator>			
-		<scaleOperator scaleFactor="0.99" weight="1">
+		</randomWalkOperator>		
+		<randomWalkOperator windowSize="1.0" weight="1">
 			<parameter idref="serumPotencies.mean"/>
-		</scaleOperator>	
+		</randomWalkOperator>		
 		<scaleOperator scaleFactor="0.99" weight="1">
 			<parameter idref="serumPotencies.precision"/>
-		</scaleOperator>			
+		</scaleOperator>
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumDrift.rate"/>
+		</scaleOperator>	
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumDrift.precision"/>
+		</scaleOperator>					
 	</operators>
 
 	<mcmc id="mcmc" chainLength="1000000" autoOptimize="true" operatorAnalysis="stem.ops">
 		<posterior id="posterior">
 			<prior id="prior">
+			
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="constant.popSize"/>
+				</exponentialPrior>	
+				<coalescentLikelihood idref="coalescent"/>			
+			
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="alpha"/>
 				</exponentialPrior>				
@@ -468,6 +498,7 @@
 					</ctmcScale>
 					<treeModel idref="treeModel"/>
 				</ctmcScalePrior>	
+				
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="drift.rate"/>
 				</exponentialPrior>			
@@ -479,19 +510,27 @@
 				</exponentialPrior>			
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="diffusionTrunkRatio"/>
-				</exponentialPrior>																
+				</exponentialPrior>	
+				<multivariateTraitLikelihood idref="traitLikelihood"/>								
+															
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="mds.precision"/>
-				</exponentialPrior>	
+				</exponentialPrior>										
+				<normalPrior mean="10.0" stdev="10.0">
+					<parameter idref="serumPotencies.mean"/>
+				</normalPrior>	
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="serumPotencies.precision"/>
-				</exponentialPrior>					
+				</exponentialPrior>	
 				<distributionLikelihood idref="serumPotencies.hpm"/>				
 				<exponentialPrior mean="1.0" offset="0.0">
-					<parameter idref="constant.popSize"/>
+					<parameter idref="serumDrift.rate"/>
 				</exponentialPrior>	
-				<coalescentLikelihood idref="coalescent"/>
-				<multivariateTraitLikelihood idref="traitLikelihood"/>		
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="serumDrift.precision"/>
+				</exponentialPrior>	
+				<antigenicDriftPrior idref="serumDriftPrior"/>												
+				
 			</prior>
 			<likelihood id="likelihood">
 	            <antigenicLikelihood idref="antigenicLikelihood"/>	
@@ -541,7 +580,9 @@
 			<parameter idref="diffusionTrunkRatio"/>	
 			<parameter idref="mds.precision"/>	
 			<parameter idref="serumPotencies.mean"/>	
-			<parameter idref="serumPotencies.precision"/>															
+			<parameter idref="serumPotencies.precision"/>	
+			<parameter idref="serumDrift.rate"/>	
+			<parameter idref="serumDrift.precision"/>																	
 			<parameter idref="stem"/>
 		</log>
 		
