@@ -310,8 +310,7 @@
 			<parameter id="diffusionTrunkRatio" value="1.0" lower="0.0"/>
 		</trunk>
 	</localClockModel>
-
-	<!--		
+		
 	<localClockModel id="driftRates">
 		<treeModel idref="treeModel"/>
 		<rate>
@@ -331,7 +330,6 @@
    			<parameter id="drift.rate.d2" value="0.0"/>
  		</rate>
 	</strictClockBranchRates>
-	-->
 			
 	<multivariateTraitLikelihood id="traitLikelihood" traitName="antigenic" 
 	 						     useTreeLength="true" scaleByTime="false" 
@@ -352,12 +350,10 @@
 			</priorSampleSize>
 		</conjugateRootPrior>
         <localClockModel idref="diffusionRates"/>	
-        <!--
 		<driftModels>
 			<localClockModel idref="driftRates"/>
 			<strictClockBranchRates idref="driftRates.d2"/>			
 		</driftModels>
-		-->
     </multivariateTraitLikelihood>	
     
 	<antigenicLikelihood id="antigenicLikelihood" 
@@ -404,14 +400,12 @@
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="clock.rate"/>
 		</scaleOperator>
-		<!--
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="drift.rate"/>
 		</scaleOperator>
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="driftTrunkRatio"/>
-		</scaleOperator>
-		-->			
+		</scaleOperator>		
 		<scaleOperator scaleFactor="0.75" weight="3">
 			<parameter idref="diffusion.rate"/>
 		</scaleOperator>
@@ -474,14 +468,12 @@
 					</ctmcScale>
 					<treeModel idref="treeModel"/>
 				</ctmcScalePrior>	
-				<!--
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="drift.rate"/>
 				</exponentialPrior>			
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="driftTrunkRatio"/>
 				</exponentialPrior>	
-				-->
 				<exponentialPrior mean="1.0" offset="0.0">
 					<parameter idref="diffusion.rate"/>
 				</exponentialPrior>			
@@ -524,11 +516,9 @@
 			<column label="clock.rate" sf="6" width="12">
 				<parameter idref="clock.rate"/>
 			</column>
-			<!--
 			<column label="drift.rate" sf="6" width="12">
 				<parameter idref="drift.rate"/>
 			</column>
-			-->
 			<column label="diffusion.rate" sf="6" width="12">
 				<parameter idref="diffusion.rate"/>
 			</column>			
@@ -545,10 +535,8 @@
 			<parameter idref="constant.popSize"/>
 			<parameter idref="alpha"/>			
 			<parameter idref="clock.rate"/>
-			<!--
 			<parameter idref="drift.rate"/>
 			<parameter idref="driftTrunkRatio"/>
-			-->	
 			<parameter idref="diffusion.rate"/>
 			<parameter idref="diffusionTrunkRatio"/>	
 			<parameter idref="mds.precision"/>	
@@ -571,14 +559,12 @@
 
 		<logTree id="treeFileLog" logEvery="1000" nexusFormat="true" fileName="stem_antigenic.trees" sortTranslationTable="true">
 			<treeModel idref="treeModel"/>
-			<!--
 			<trait name="trunk" tag="trunk">
 				<localClockModel idref="driftRates"/>
 			</trait>
 			<trait name="rate" tag="driftRate">
 				<localClockModel idref="driftRates"/>
 			</trait>
-			-->
 			<trait name="rate" tag="diffusionRate">
 				<localClockModel idref="diffusionRates"/>
 			</trait>
