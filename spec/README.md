@@ -203,26 +203,6 @@ We include antigenic locations in the `taxa` block:
 </taxa>
 ```
 
-Tree model also references the trait:
-
-```xml
-<treeModel id="treeModel">
-	<coalescentTree idref="startingTree"/>
-	<rootHeight>
-		<parameter id="treeModel.rootHeight"/>
-	</rootHeight>
-	<nodeHeights internalNodes="true">
-		<parameter id="treeModel.internalNodeHeights"/>
-	</nodeHeights>
-	<nodeHeights internalNodes="true" rootNode="true">
-		<parameter id="treeModel.allInternalNodeHeights"/>
-	</nodeHeights>
-	<nodeTraits name="antigenic" rootNode="false" internalNodes="false" leafNodes="true" traitDimension="2">
-		<parameter id="leaf.antigenic"/>
-	</nodeTraits>		
-</treeModel>
-```
-
 We estimate the virus phylogeny in the standard fashion using `treeLikelihood`.  To model the diffusion process we create a `multivariateDiffusionModel` and fix the diffusion kernel to be equal in dimensions 1 and 2 and include no correlation:
 
 ```xml
@@ -287,7 +267,7 @@ These plug into a trait likelihood:
 	<multivariateDiffusionModel idref="diffusionModel"/>		
 	<treeModel idref="treeModel"/>			
 	<traitParameter>
-		<parameter idref="leaf.antigenic"/>
+		<parameter id="leaf.antigenic"/>
 	</traitParameter>
 	<conjugateRootPrior>
 		<meanParameter>
@@ -395,7 +375,29 @@ This is accomplished by including an antigenic likelihood that references tip tr
 	<serumPotencies>
 		<parameter id="serumPotencies"/>
 	</serumPotencies>	
+	<serumOffsets>
+		<parameter id="serumOffsets"/>
+	</serumOffsets>		
 </antigenicLikelihood>  
+```
+
+We assume that serum locations drift to the right from the origin:
+
+```xml
+<antigenicDriftPrior id="serumDriftPrior">
+	<locations>
+		<matrixParameter idref="serumLocations"/>
+	</locations>
+	<offsets>
+		<parameter idref="serumOffsets"/>
+	</offsets>
+	<regressionSlope>
+		<parameter id="serumDrift.rate" value="1.0" lower="0.0"/>
+	</regressionSlope>
+	<regressionPrecision>
+		<parameter id="serumDrift.precision" value="1.0" lower="0.0"/>
+	</regressionPrecision>
+</antigenicDriftPrior>
 ```
 
 Serum potencies are estimated in a hierarchical fashion:
@@ -418,7 +420,7 @@ Serum potencies are estimated in a hierarchical fashion:
 </distributionLikelihood>
 ```
 
-This requires proposals on virus locations, serum locations, serum potencies, MDS precision, serum potencies mean and serum potencies precision:
+This requires proposals on virus locations, serum locations, serum potencies, MDS precision, serum potencies mean, serum potencies precision, serum drift rate and serum drift precision:
 
 ```xml
 <operators id="operators">
@@ -431,15 +433,21 @@ This requires proposals on virus locations, serum locations, serum potencies, MD
 	<scaleOperator scaleFactor="0.99" weight="1">
 		<parameter idref="mds.precision"/>
 	</scaleOperator>	
-	<scaleOperator scaleFactor="0.99" weight="10">
+	<randomWalkOperator windowSize="1.0" weight="10">
 		<parameter idref="serumPotencies"/>
-	</scaleOperator>			
-	<scaleOperator scaleFactor="0.99" weight="1">
+	</randomWalkOperator>		
+	<randomWalkOperator windowSize="1.0" weight="1">
 		<parameter idref="serumPotencies.mean"/>
-	</scaleOperator>	
+	</randomWalkOperator>		
 	<scaleOperator scaleFactor="0.99" weight="1">
 		<parameter idref="serumPotencies.precision"/>
 	</scaleOperator>
+	<scaleOperator scaleFactor="0.99" weight="1">
+		<parameter idref="serumDrift.rate"/>
+	</scaleOperator>	
+	<scaleOperator scaleFactor="0.99" weight="1">
+		<parameter idref="serumDrift.precision"/>
+	</scaleOperator>	
 </operators>
 ```
 
@@ -449,15 +457,23 @@ The prior on virus locations is taken care of by the diffusion process, but seru
 <prior id="prior">
 	<exponentialPrior mean="1.0" offset="0.0">
 		<parameter idref="mds.precision"/>
-	</exponentialPrior>	
+	</exponentialPrior>										
+	<normalPrior mean="10.0" stdev="10.0">
+		<parameter idref="serumPotencies.mean"/>
+	</normalPrior>	
 	<exponentialPrior mean="1.0" offset="0.0">
 		<parameter idref="serumPotencies.precision"/>
-	</exponentialPrior>					
-	<distributionLikelihood idref="serumPotencies.hpm"/>	
+	</exponentialPrior>	
+	<distributionLikelihood idref="serumPotencies.hpm"/>				
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="serumDrift.rate"/>
+	</exponentialPrior>	
+	<exponentialPrior mean="1.0" offset="0.0">
+		<parameter idref="serumDrift.precision"/>
+	</exponentialPrior>	
+	<antigenicDriftPrior idref="serumDriftPrior"/>	
 </prior>
 ```
-
-*Serum locations should have a drift prior.  This needs to be specified.*
 
 Virus locations, serum locations and serum potencies are logged to separate files:
 
