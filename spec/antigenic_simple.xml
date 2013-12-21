@@ -1,0 +1,207 @@
+<?xml version="1.0" standalone="yes"?>
+
+<beast>
+		    
+	<antigenicLikelihood id="antigenicLikelihood" 
+								fileName="test_hi_padded.tsv"
+								mdsDimension="2"
+								intervalWidth="1.0">
+		<virusLocations>
+			<matrixParameter id="virusLocations"/>
+		</virusLocations>	
+		<serumLocations>
+			<matrixParameter id="serumLocations"/>
+		</serumLocations>				
+		<mdsPrecision>
+			<parameter id="mds.precision" value="1.0" lower="0.0"/>
+		</mdsPrecision>
+		<serumPotencies>
+			<parameter id="serumPotencies"/>
+		</serumPotencies>	
+		<virusOffsets>
+			<parameter id="virusOffsets"/>
+		</virusOffsets>
+		<serumOffsets>
+			<parameter id="serumOffsets"/>
+		</serumOffsets>		
+	</antigenicLikelihood>  
+
+	<antigenicDriftPrior id="virusDriftPrior">
+		<locations>
+			<matrixParameter idref="virusLocations"/>
+		</locations>
+		<offsets>
+			<parameter idref="virusOffsets"/>
+		</offsets>
+		<regressionSlope>
+			<parameter id="drift.rate" value="1.0" lower="0.0"/>
+		</regressionSlope>
+		<regressionPrecision>
+			<parameter id="virus.precision" value="1.0" lower="0.0"/>
+		</regressionPrecision>
+	</antigenicDriftPrior>
+	
+	<antigenicDriftPrior id="serumDriftPrior">
+		<locations>
+			<matrixParameter idref="serumLocations"/>
+		</locations>
+		<offsets>
+			<parameter idref="serumOffsets"/>
+		</offsets>
+		<regressionSlope>
+			<parameter id="serumDrift.rate" value="1.0" lower="0.0"/>
+		</regressionSlope>
+		<regressionPrecision>
+			<parameter id="serumDrift.precision" value="1.0" lower="0.0"/>
+		</regressionPrecision>
+	</antigenicDriftPrior>
+	
+	<distributionLikelihood id="serumPotencies.hpm">
+		<data>
+			<parameter idref="serumPotencies"/>
+		</data>
+		<distribution>
+			<normalDistributionModel>
+				<mean>
+					<parameter id="serumPotencies.mean" value="10.0" lower="0.0"/>
+				</mean>
+				<precision>
+					<parameter id="serumPotencies.precision" value="1.0" lower="0.0"/>
+				</precision>
+			</normalDistributionModel>
+		</distribution>
+	</distributionLikelihood>		  
+
+	<operators id="operators">
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="drift.rate"/>
+		</scaleOperator>	
+		<scaleOperator scaleFactor="0.75" weight="3">
+			<parameter idref="virus.precision"/>
+		</scaleOperator>		
+		<randomWalkOperator windowSize="1.0" weight="100">
+			<parameter idref="virusLocations"/>
+		</randomWalkOperator>
+		<randomWalkOperator windowSize="1.0" weight="100">
+			<parameter idref="serumLocations"/>
+		</randomWalkOperator>		
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="mds.precision"/>
+		</scaleOperator>	
+		<randomWalkOperator windowSize="1.0" weight="10">
+			<parameter idref="serumPotencies"/>
+		</randomWalkOperator>		
+		<randomWalkOperator windowSize="1.0" weight="1">
+			<parameter idref="serumPotencies.mean"/>
+		</randomWalkOperator>		
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumPotencies.precision"/>
+		</scaleOperator>
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumDrift.rate"/>
+		</scaleOperator>	
+		<scaleOperator scaleFactor="0.99" weight="1">
+			<parameter idref="serumDrift.precision"/>
+		</scaleOperator>	
+		<upDownOperator scaleFactor="0.75" weight="3">
+			<up>
+				<parameter idref="virusLocations"/>
+				<parameter idref="serumLocations"/>
+				<parameter idref="drift.rate"/>
+				<parameter idref="serumDrift.rate"/>
+			</up>
+			<down>
+			</down>
+		</upDownOperator>						
+	</operators>
+
+	<mcmc id="mcmc" chainLength="5000000" autoOptimize="true" operatorAnalysis="antigenic_simple.ops">
+		<posterior id="posterior">
+			<prior id="prior">
+				
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="drift.rate"/>
+				</exponentialPrior>			
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="virus.precision"/>
+				</exponentialPrior>			
+				<antigenicDriftPrior idref="virusDriftPrior"/>								
+															
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="mds.precision"/>
+				</exponentialPrior>										
+				<normalPrior mean="10.0" stdev="10.0">
+					<parameter idref="serumPotencies.mean"/>
+				</normalPrior>	
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="serumPotencies.precision"/>
+				</exponentialPrior>	
+				<distributionLikelihood idref="serumPotencies.hpm"/>				
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="serumDrift.rate"/>
+				</exponentialPrior>	
+				<exponentialPrior mean="1.0" offset="0.0">
+					<parameter idref="serumDrift.precision"/>
+				</exponentialPrior>	
+				<antigenicDriftPrior idref="serumDriftPrior"/>												
+				
+			</prior>
+			<likelihood id="likelihood">
+	            <antigenicLikelihood idref="antigenicLikelihood"/>	
+			</likelihood>
+		</posterior>
+		<operators idref="operators"/>
+
+		<log id="screenLog" logEvery="5000">
+			<column label="Posterior" dp="4" width="12">
+				<posterior idref="posterior"/>
+			</column>
+			<column label="Prior" dp="4" width="12">
+				<prior idref="prior"/>
+			</column>
+			<column label="Likelihood" dp="4" width="12">
+				<likelihood idref="likelihood"/>
+			</column>
+			<column label="drift.rate" sf="6" width="12">
+				<parameter idref="drift.rate"/>
+			</column>
+			<column label="diffusion.precision" sf="6" width="12">
+				<parameter idref="virus.precision"/>
+			</column>	
+			<column label="mds.precision" sf="6" width="12">
+				<parameter idref="mds.precision"/>
+			</column>					
+		</log>
+
+		<log id="fileLog" logEvery="5000" fileName="antigenic_simple.log" overwrite="false">
+			<posterior idref="posterior"/>
+			<prior idref="prior"/>
+			<likelihood idref="likelihood"/>
+			<parameter idref="drift.rate"/>
+			<parameter idref="virus.precision"/>
+			<parameter idref="mds.precision"/>	
+			<parameter idref="serumPotencies.mean"/>	
+			<parameter idref="serumPotencies.precision"/>	
+			<parameter idref="serumDrift.rate"/>	
+			<parameter idref="serumDrift.precision"/>																	
+		</log>
+		
+		<log id="fileLog2" logEvery="5000" fileName="antigenic_simple.virusLocs.log">
+			<parameter idref="virusLocations"/>
+		</log>
+		
+		<log id="fileLog3" logEvery="5000" fileName="antigenic_simple.serumLocs.log">
+			<parameter idref="serumLocations"/>
+		</log>		
+
+		<log id="fileLog4" logEvery="5000" fileName="antigenic_simple.serumPotencies.log">
+			<parameter idref="serumPotencies"/>
+		</log>		
+		
+	</mcmc>
+	<report>
+		<property name="timer">
+			<mcmc idref="mcmc"/>
+		</property>
+	</report>
+</beast>
