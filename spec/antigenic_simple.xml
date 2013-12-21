@@ -115,7 +115,7 @@
 		</upDownOperator>						
 	</operators>
 
-	<mcmc id="mcmc" chainLength="5000000" autoOptimize="true" operatorAnalysis="antigenic_simple.ops">
+	<mcmc id="mcmc" chainLength="10000000" autoOptimize="true" operatorAnalysis="antigenic_simple.ops">
 		<posterior id="posterior">
 			<prior id="prior">
 				
